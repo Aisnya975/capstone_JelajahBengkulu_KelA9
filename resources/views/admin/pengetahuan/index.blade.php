@@ -114,6 +114,43 @@
             background: rgba(13, 89, 51, 0.2); border: 1px solid rgba(13, 89, 51, 0.4); color: #34d399; padding: 14px 18px;
             border-radius: 10px; margin-bottom: 25px; font-weight: 600; font-size: 14px;
         }
+   /* --- PERBAIKAN TOTAL: SEMBUNYIKAN SEMUA SVG DI DALAM NAVIGASI HALAMAN --- */
+        nav[role="navigation"], .flex.items-center.justify-between, nav div {
+            /* Menyesuaikan kontainer navigasi */
+        }
+        
+        /* Menyembunyikan seluruh ikon SVG (termasuk panah ungu) di dalam area navigasi pagination */
+        nav[role="navigation"] svg {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Merapikan kotak nomor halaman agar konsisten dengan tema gelap */
+        nav[role="navigation"] span[aria-current="page"] span {
+            background: var(--teal) !important;
+            border-color: var(--teal) !important;
+            color: white !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+        }
+
+        nav[role="navigation"] a, nav[role="navigation"] span {
+            background: var(--bg-deep) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-main) !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        nav[role="navigation"] a:hover {
+            border-color: var(--teal) !important;
+            color: #5eead4 !important;
+            background: rgba(24, 123, 120, 0.2) !important;
+        }
     </style>
 </head>
 <body>

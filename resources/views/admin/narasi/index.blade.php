@@ -149,6 +149,43 @@
             font-size: 14px;
             border: 1px solid transparent;
         }
+/* --- PERBAIKAN TOTAL: SEMBUNYIKAN SEMUA SVG DI DALAM NAVIGASI HALAMAN --- */
+        nav[role="navigation"], .flex.items-center.justify-between, nav div {
+            /* Menyesuaikan kontainer navigasi */
+        }
+        
+        /* Menyembunyikan seluruh ikon SVG (termasuk panah ungu) di dalam area navigasi pagination */
+        nav[role="navigation"] svg {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Merapikan kotak nomor halaman agar konsisten dengan tema gelap */
+        nav[role="navigation"] span[aria-current="page"] span {
+            background: var(--teal) !important;
+            border-color: var(--teal) !important;
+            color: white !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+        }
+
+        nav[role="navigation"] a, nav[role="navigation"] span {
+            background: var(--bg-deep) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-main) !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        nav[role="navigation"] a:hover {
+            border-color: var(--teal) !important;
+            color: #5eead4 !important;
+            background: rgba(24, 123, 120, 0.2) !important;
+        }
         @media(max-width: 768px) {
             .stats { grid-template-columns: 1fr; }
             header { align-items: flex-start; flex-direction: column; }
@@ -171,7 +208,6 @@
             <a href="{{ route('admin.pengetahuan.manage') }}" style="color: #81ecec; font-weight: 600;">📚 Kelola Publik</a>
             <a href="{{ route('home') }}" style="font-weight: 600;">Lihat Website ↗</a>
 
-            <!-- Tombol Logout Admin -->
             <form action="{{ route('logout') }}" method="POST" style="display: inline; margin: 0;">
                 @csrf
                 <button type="submit" style="background: rgba(155, 28, 28, 0.2); color: #f87171; border: 1px solid rgba(155, 28, 28, 0.4); padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
@@ -202,13 +238,11 @@
             </div>
         @endif
 
-        <!-- Bagian Tombol Tambah & Search Bar -->
         <div class="actions">
             <a class="button" href="{{ route('admin.narasi.create') }}">
                 + Tambah Narasi
             </a>
 
-            <!-- Form Search Bar -->
             <form action="{{ route('admin.narasi.index') }}" method="GET" class="search-form">
                 <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari judul narasi atau lokasi...">
                 <button type="submit">Cari</button>
@@ -247,54 +281,51 @@
                     </tr>
                 </thead>
                 <tbody>
-        @forelse ($narasis as $narasi)
-            {{-- Cek apakah data ini sudah masuk ke tabel pengetahuans / terekstrak --}}
-            @php
-                $sudahTerekstrak = \App\Models\Pengetahuan::where('narasi_id', $narasi->id)->exists() 
-                                   || method_exists($narasi, 'ekstraksiLlms') && $narasi->ekstraksiLlms()->exists();
-            @endphp
-            <tr>
-                <td><strong style="color: var(--text-main);">{{ $narasi->judul_narasi }}</strong></td>
-                <td style="color: var(--text-muted);">{{ $narasi->lokasi_penelitian ?? '-' }}</td>
-                <td style="color: var(--text-muted);">
-                    {{ $narasi->tanggal_pengumpulan ? \Carbon\Carbon::parse($narasi->tanggal_pengumpulan)->format('d M Y') : '-' }}
-                </td>
-                <td>
-                    <span class="status">
-                        {{ ucfirst($narasi->status_verifikasi) }}
-                    </span>
-                </td>
-                <td style="text-align: right; white-space: nowrap;">
-                    @if(!$sudahTerekstrak)
-                        {{-- Tampilkan tombol Ekstrak AI jika belum terekstrak --}}
-                        <form action="{{ route('admin.narasi.extract', $narasi->id) }}" method="POST" style="display: inline-block; margin-right: 5px;">
-                            @csrf
-                            <button type="submit" style="background: var(--teal); color: white; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600;">
-                                ⚡ Ekstrak AI
-                            </button>
-                        </form>
-                    @endif
+    @forelse ($narasis as $narasi)
+        @php
+            $sudahTerekstrak = \App\Models\Pengetahuan::where('narasi_id', $narasi->id)->exists() 
+                               || method_exists($narasi, 'ekstraksiLlms') && $narasi->ekstraksiLlms()->exists();
+        @endphp
+        <tr>
+            <td><strong style="color: var(--text-main);">{{ $narasi->judul_narasi }}</strong></td>
+            <td style="color: var(--text-muted);">{{ $narasi->lokasi_penelitian ?? '-' }}</td>
+            <td style="color: var(--text-muted);">
+                {{ $narasi->tanggal_pengumpulan ? \Carbon\Carbon::parse($narasi->tanggal_pengumpulan)->format('d M Y') : '-' }}
+            </td>
+            <td>
+                <span class="status">
+                    {{ ucfirst($narasi->status_verifikasi) }}
+                </span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+                @if(!$sudahTerekstrak)
+                    <form action="{{ route('admin.narasi.extract', $narasi->id) }}" method="POST" style="display: inline-block; margin-right: 5px;">
+                        @csrf
+                        <button type="submit" style="background: var(--teal); color: white; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600;">
+                            ⚡ Ekstrak AI
+                        </button>
+                    </form>
+                @endif
 
-                    {{-- Selalu tampilkan tombol Tinjau jika sudah terekstrak --}}
-                    @if($sudahTerekstrak)
-                        <a href="{{ route('admin.narasi.review', $narasi->id) }}" style="display: inline-block; background: #2b6cb0; color: white; padding: 7px 14px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600;">
-                            🔍 Tinjau Hasil
-                        </a>
-                    @endif
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                    @if(request('search'))
-                        Pencarian untuk "{{ request('search') }}" tidak ditemukan.
-                    @else
-                        Belum ada narasi. Silakan tambahkan narasi pertama.
-                    @endif
-                </td>
-            </tr>
-        @endforelse
-    </tbody>
+                @if($sudahTerekstrak)
+                    <a href="{{ route('admin.narasi.review', $narasi->id) }}" style="display: inline-block; background: #2b6cb0; color: white; padding: 7px 14px; border-radius: 8px; font-size: 12px; text-decoration: none; font-weight: 600;">
+                        🔍 Tinjau Hasil
+                    </a>
+                @endif
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                @if(request('search'))
+                    Pencarian untuk "{{ request('search') }}" tidak ditemukan.
+                @else
+                    Belum ada narasi. Silakan tambahkan narasi pertama.
+                @endif
+            </td>
+        </tr>
+    @endforelse
+</tbody>
             </table>
 
             <div style="margin-top:25px">
@@ -302,5 +333,14 @@
             </div>
         </section>
     </main>
+
+    <!-- Script Pembersih Total SVG Paginasi Laravel -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Menargetkan semua SVG atau elemen path yang ada di dalam paginasi
+            const elementsToRemove = document.querySelectorAll('.pagination svg, .pagination path, .pagination polygon');
+            elementsToRemove.forEach(el => el.remove());
+        });
+    </script>
 </body>
 </html>

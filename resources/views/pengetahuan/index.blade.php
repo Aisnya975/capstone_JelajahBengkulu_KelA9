@@ -379,9 +379,50 @@
             text-align: center;
         }
 
+        /* --- STYLING PAGINASI YANG BENAR (DI LUAR MEDIA QUERY) --- */
         .pagination {
-            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
         }
+
+        .pagination nav {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .pagination svg {
+            width: 16px !important;
+            height: 16px !important;
+            color: var(--text-muted);
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .pagination span, .pagination a {
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-main) !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .pagination span[aria-current="page"] {
+            background: var(--teal) !important;
+            border-color: var(--teal) !important;
+            color: white !important;
+        }
+
+        .pagination a:hover {
+            border-color: var(--teal) !important;
+            color: #5eead4 !important;
+        }
+        /* -------------------------------------------------------- */
 
         .footer {
             padding: 40px 7%;
@@ -426,47 +467,6 @@
                 align-items: flex-start;
                 flex-direction: column;
             }
-            /* Styling untuk Merapikan Paginasi di Bagian Bawah */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin-top: 40px;
-        }
-
-        .pagination nav {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-        }
-
-        .pagination svg {
-            width: 16px !important;
-            height: 16px !important;
-            color: var(--text-muted);
-        }
-
-        .pagination span, .pagination a {
-            background: var(--surface) !important;
-            border: 1px solid var(--border) !important;
-            color: var(--text-main) !important;
-            padding: 8px 14px !important;
-            border-radius: 8px !important;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .pagination span[aria-current="page"] {
-            background: var(--teal) !important;
-            border-color: var(--teal) !important;
-            color: white !important;
-        }
-
-        .pagination a:hover {
-            border-color: var(--teal) !important;
-            color: #5eead4 !important;
-        }
         }
     </style>
 </head>
@@ -520,13 +520,13 @@
         <div class="hero-content">
             @if($heroItems->count() > 0)
                 <a id="heroDetailBtn" href="{{ route('pengetahuan.show', $heroItems->first()) }}" class="hero-featured-badge">
-                    ✨ Sedang Ditampilkan: <span id="heroTitleText">{{ $heroItems->first()->name ?? $heroItems->first()->judul_pengetahuan }}</span> →
+                    ✨  <span id="heroTitleText">{{ $heroItems->first()->name ?? $heroItems->first()->judul_pengetahuan }}</span> →
                 </a>
             @else
                 <div class="eyebrow">Warisan • Cerita • Masyarakat</div>
             @endif
 
-            <h1>Menjelajahi cerita di balik budaya Bengkulu.</h1>
+            <h1>Menjelajahi cerita di balik budaya pesisir Bengkulu</h1>
 
             <p>
                 Temukan tradisi, pengetahuan lokal, kesenian, dan kehidupan
@@ -597,7 +597,8 @@
                         @else
                             <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #122026; color: var(--teal); font-weight: 600; font-size: 13px;">
                                 <span style="font-size: 28px; margin-bottom: 6px;">🏛️</span>
-                                <span>Jelajah Bengkulu</span>
+                                <span>Jelajah Bengkulu
+                                <br>Knowledge Explorer Budaya Pesisir Bengkulu</span>
                             </div>
                         @endif
                     </div>
@@ -646,7 +647,7 @@
     <!-- FOOTER -->
     <footer class="footer">
         <strong>JELAJAH BENGKULU</strong>
-
+        <br> Knowledge Explorer Budaya Pesisir Bengkulu
     </footer>
 
     <!-- SCRIPT SLIDESHOW HERO & TOMBOL DETAIL -->
