@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Narasi;
+use App\Models\Pengetahuan;
 use Illuminate\Http\Request;
 
 class NarasiController extends Controller
@@ -99,5 +100,68 @@ class NarasiController extends Controller
     {
         $narasi->delete();
         return redirect()->route('admin.narasi.index')->with('success', 'Narasi berhasil dihapus.');
+    }
+
+    // Method untuk Ekstraksi Massal Seluruh Narasi ke Tabel Pengetahuan
+    public function ekstrakMassal()
+    {
+        $narasis = Narasi::all();
+        $berhasil = 0;
+
+        foreach ($narasis as $narasi) {
+            // Cek apakah narasi ini sudah terekstrak sebelumnya
+            $cekSudahAda = Pengetahuan::where('narasi_id', $narasi->id)->exists();
+
+            if (!$cekSudahAda) {
+                // Simpan ke tabel pengetahuans sebagai data hasil ekstraksi
+                Pengetahuan::create([
+                    'narasi_id' => $narasi->id,
+                    'name' => $narasi->judul_narasi,
+                    'category' => 'Tradisi Lokal', // Kategori default atau sesuaikan kolom
+                    'description' => $narasi->isi_narasi,
+                    'location' => $narasi->lokasi_penelitian ?? 'Bengkulu',
+                ]);
+                
+                $berhasil++;
+            }
+        }
+
+        return redirect()
+            ->route('admin.narasi.index')
+            ->with('success', "Berhasil memproses dan mengekstrak $berhasil data narasi secara massal!");
+    }
+    // Method untuk Menerima dan Mengekstrak Semua Narasi Sekaligus
+    public function terimaSemua()
+    {
+        $narasis = Narasi::all();
+        $berhasil = 0;
+
+        foreach ($narasis as $narasi) {
+            // 1. Ubah status verifikasi narasi menjadi terverifikasi/disetujui
+            $narasi->update(['status_verifikasi' => 'terverifikasi']);
+
+            // 2. Masukkan atau perbarui data ke tabel pengetahuans agar tidak [NULL]
+            \App\Models\Pengetahuan::updateOrCreate(
+                ['narasi_id' => $narasi->id],
+                [
+                    'name' => $narasi->judul_narasi,
+                    'category' => 'Tradisi & Budaya Lokal',
+                    'description' => $narasi->isi_narasi,
+                    'practice' => 'Praktik atau ritual adat berdasarkan narasi budaya.',
+                    'cultural_term' => 'Istilah Budaya Pesisir',
+                    'community' => 'Masyarakat Lokal Bengkulu',
+                    'people' => $narasi->nama_sumber ?? 'Tokoh Adat / Narasumber',
+                    'location' => $narasi->lokasi_penelitian ?? 'Bengkulu',
+                    'time' => $narasi->tanggal_pengumpulan ? \Carbon\Carbon::parse($narasi->tanggal_pengumpulan)->format('Y') : 'Turun-temurun',
+                    'meaning' => 'Pelestarian nilai luhur budaya lokal.'
+                ]
+            );
+
+            $berhasil++;
+        }
+
+        return redirect()
+            ->route('admin.narasi.index')
+            ->with('success', "Berhasil menerima dan memproses {$berhasil} data narasi secara massal!");
     }
 }

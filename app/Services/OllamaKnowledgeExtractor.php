@@ -5,13 +5,13 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class OllamaKnowledgeExtractor
+class Ollama KnowledgeExtractor
 {
     public function extract($narasi): array
     {
         $teksNarasi = is_object($narasi) ? ($narasi->isi_narasi ?? '') : (string) $narasi;
 
-        // Prompt dibuat lebih ringkas dan to the point agar gemma:2b tidak kewalahan
+       // Prompt dibuat lebih ringkas dan to the point agar gemma:2b tidak kewalahan
         $prompt = "Ekstrak informasi budaya Bengkulu berikut ke dalam format JSON murni.\n" .
             "Jangan gunakan tanda kutip ganda di dalam teks deskripsi agar JSON tidak rusak.\n" .
             "Struktur JSON harus persis seperti ini:\n" .

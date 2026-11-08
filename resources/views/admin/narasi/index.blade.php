@@ -203,9 +203,9 @@
             </a>
         </div>
         <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-            <a href="{{ route('admin.users.index') }}" style="color: var(--accent-gold); font-weight: 600;">👥 Manajemen Akun</a>
-            <a href="{{ route('admin.testimonis.index') }}" style="color: var(--accent-gold); font-weight: 600;">💬 Kelola Testimoni</a>
-            <a href="{{ route('admin.pengetahuan.manage') }}" style="color: #81ecec; font-weight: 600;">📚 Kelola Publik</a>
+            <a href="{{ route('admin.users.index') }}" style="color: var(--accent-gold); font-weight: 600;">Manajemen Akun</a>
+            <a href="{{ route('admin.testimonis.index') }}" style="color: var(--accent-gold); font-weight: 600;">Kelola Testimoni</a>
+            <a href="{{ route('admin.pengetahuan.manage') }}" style="color: var(--accent-gold); font-weight: 600;">Kelola Publik</a>
             <a href="{{ route('home') }}" style="font-weight: 600;">Lihat Website ↗</a>
 
             <form action="{{ route('logout') }}" method="POST" style="display: inline; margin: 0;">

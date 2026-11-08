@@ -520,7 +520,7 @@
         <div class="hero-content">
             @if($heroItems->count() > 0)
                 <a id="heroDetailBtn" href="{{ route('pengetahuan.show', $heroItems->first()) }}" class="hero-featured-badge">
-                    ✨  <span id="heroTitleText">{{ $heroItems->first()->name ?? $heroItems->first()->judul_pengetahuan }}</span> →
+                     <span id="heroTitleText">{{ $heroItems->first()->name ?? $heroItems->first()->judul_pengetahuan }}</span> →
                 </a>
             @else
                 <div class="eyebrow">Warisan • Cerita • Masyarakat</div>

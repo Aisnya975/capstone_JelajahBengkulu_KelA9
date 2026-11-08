@@ -10,6 +10,8 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminPengetahuanController;
 use App\Http\Controllers\TestimoniController;
 use App\Http\Controllers\Admin\TestimoniController as AdminTestimoniController;
+Route::post('/admin/narasi/ekstrak-massal', [App\Http\Controllers\Admin\NarasiController::class, 'ekstrakMassal'])->name('admin.narasi.ekstrak-massal');
+Route::post('/admin/narasi/terima-semua', [App\Http\Controllers\Admin\NarasiController::class, 'terimaSemua'])->name('admin.narasi.terima-semua');
 
 // Route Kirim Testimoni Publik
 Route::post('/testimoni/store', [TestimoniController::class, 'store'])->name('testimoni.store');
