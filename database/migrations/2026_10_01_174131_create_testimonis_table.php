@@ -14,6 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('testimonis')) {
             Schema::create('testimonis', function (Blueprint $table) {
                 $table->id();
+                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
                 $table->string('nama');
                 $table->string('pekerjaan')->nullable(); // Contoh: Peneliti Budaya, Mahasiswa, Tokoh Masyarakat
                 $table->text('pesan');
