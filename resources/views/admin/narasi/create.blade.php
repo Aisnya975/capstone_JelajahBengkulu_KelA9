@@ -91,10 +91,18 @@
     </style>
 </head>
 <body>
-    <header>
-        <a href="{{ route('admin.narasi.index') }}">
-            JELAJAH <span style="color: var(--teal);">BENGKULU</span> / ADMIN
-        </a>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <a href="{{ route('admin.narasi.index') }}">
+                <strong style="letter-spacing: 1px;">JELAJAH <span style="color: var(--teal);">BENGKULU</span></strong>
+                <div style="font-size:11px; margin-top:3px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Admin Panel</div>
+            </a>
+        </div>
+        <div>
+            <a href="{{ route('admin.narasi.index') }}" class="back" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px;">
+                ← 
+            </a>
+        </div>
     </header>
 
     <main>

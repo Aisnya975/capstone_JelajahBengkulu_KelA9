@@ -84,12 +84,18 @@
     </style>
 </head>
 <body>
-    <header>
-        <a href="{{ route('admin.narasi.index') }}">
-            <strong style="letter-spacing: 1px;">JELAJAH <span style="color: var(--teal);">BENGKULU</span></strong>
-            <div style="font-size:11px; margin-top:3px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Admin Panel — Review & Revisi AI</div>
-        </a>
-        <a href="{{ route('admin.narasi.index') }}" style="font-size: 14px; font-weight: 600; color: var(--teal);">← Kembali ke Dashboard</a>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <a href="{{ route('admin.narasi.index') }}">
+                <strong style="letter-spacing: 1px;">JELAJAH <span style="color: var(--teal);">BENGKULU</span></strong>
+                <div style="font-size:11px; margin-top:3px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Admin Panel</div>
+            </a>
+        </div>
+        <div>
+            <a href="{{ route('admin.narasi.index') }}" class="back" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px;">
+                ← Kembali
+            </a>
+        </div>
     </header>
 
     <main>
@@ -108,27 +114,32 @@
         </div>
 
         <div class="panel">
-            <h3 style="font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Formulir Revisi Hasil Ekstraksi <span style="font-size: 13px; color: var(--accent-gold); font-weight: normal;">(Model: {{ $ekstraksi->model_llm }})</span></h3>
+            <h3 style="font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                Formulir Revisi Hasil Ekstraksi <span style="font-size: 13px; color: var(--accent-gold); font-weight: normal;">(Model: {{ $ekstraksi->model_llm ?? 'gemma:2b' }})</span>
+            </h3>
             
             @php
-                $data = $ekstraksi->hasil_ekstraksi;
+                // Mengambil array data ekstraksi (baik berupa array langsung maupun JSON terurai)
+                $data = is_array($ekstraksi->hasil_ekstraksi ?? null) 
+                    ? $ekstraksi->hasil_ekstraksi 
+                    : json_decode($ekstraksi->hasil_ekstraksi ?? '{}', true);
             @endphp
 
-            <!-- Perhatikan penambahan enctype="multipart/form-data" di sini agar file gambar bisa terkirim -->
-            <form action="{{ route('admin.narasi.approve', $narasi->id) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.narasi.update', $narasi->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
 
                 <div class="form-group">
                     <label>Judul Pengetahuan</label>
-                    <input type="text" name="name" value="{{ $data['name'] ?? $narasi->judul_narasi }}" required>
+                    <input type="text" name="name" value="{{ old('name', $data['name'] ?? $narasi->judul_narasi) }}" required>
                 </div>
 
                 <div class="form-group">
                     <label>Kategori</label>
                     <select name="category" required>
-                        @foreach(['ritual', 'tradisi_nelayan', 'kesenian', 'kuliner', 'festival', 'kerajinan', 'pengetahuan_lokal', 'lainnya'] as $cat)
-                            <option value="{{ $cat }}" {{ (isset($data['category']) && $data['category'] === $cat) ? 'selected' : '' }}>
-                                {{ ucfirst(str_replace('_', ' ', $cat)) }}
+                        @foreach(['Ritual', 'Kuliner', 'Gotong Royong', 'Kesenian', 'Tradisi Lisan', 'Kerajinan'] as $cat)
+                            <option value="{{ $cat }}" {{ (isset($data['category']) && strcasecmp($data['category'], $cat) === 0) ? 'selected' : '' }}>
+                                {{ $cat }}
                             </option>
                         @endforeach
                     </select>
@@ -136,25 +147,44 @@
 
                 <div class="form-group">
                     <label>Deskripsi</label>
-                    <textarea name="description">{{ $data['description'] ?? '' }}</textarea>
+                    <textarea name="description">{{ old('description', $data['description'] ?? $narasi->isi_narasi) }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Praktik & Tradisi Budaya</label>
+                    <textarea name="practice">{{ old('practice', $data['practice'] ?? 'Tidak ada praktik khusus') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Istilah Khas Budaya</label>
+                    <input type="text" name="cultural_term" value="{{ old('cultural_term', $data['cultural_term'] ?? '-') }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Komunitas Terkait</label>
+                    <input type="text" name="community" value="{{ old('community', $data['community'] ?? 'Masyarakat Lokal Bengkulu') }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Tokoh / Pihak Terkait</label>
+                    <input type="text" name="people" value="{{ old('people', $data['people'] ?? ($narasi->nama_sumber ?? 'Narasumber lokal')) }}">
                 </div>
 
                 <div class="form-group">
                     <label>Lokasi</label>
-                    <input type="text" name="location" value="{{ $data['location'] ?? $narasi->lokasi_penelitian }}">
+                    <input type="text" name="location" value="{{ old('location', $data['location'] ?? ($narasi->lokasi_penelitian ?? 'Bengkulu')) }}">
                 </div>
 
                 <div class="form-group">
                     <label>Waktu / Periode</label>
-                    <input type="text" name="time" value="{{ $data['time'] ?? '' }}">
+                    <input type="text" name="time" value="{{ old('time', $data['time'] ?? 'Turun-temurun') }}">
                 </div>
 
                 <div class="form-group">
                     <label>Makna / Filosofi</label>
-                    <textarea name="meaning">{{ $data['meaning'] ?? '' }}</textarea>
+                    <textarea name="meaning">{{ old('meaning', $data['meaning'] ?? 'Pelestarian nilai budaya lokal.') }}</textarea>
                 </div>
 
-                <!-- Input Upload Gambar yang menyatu dalam form -->
                 <div class="form-group" style="margin-top: 25px; padding: 20px; background: var(--bg-deep); border: 1px dashed var(--border); border-radius: 12px;">
                     <label style="margin-bottom: 10px;">Upload Foto Dokumentasi Budaya</label>
                     <input type="file" name="image" accept="image/*" style="padding: 8px 0; border: none; background: transparent; width: 100%; color: var(--text-main);">
@@ -168,8 +198,9 @@
                 </div>
             </form>
 
-            <form action="{{ route('admin.narasi.reject', $narasi->id) }}" method="POST" style="margin-top: 15px;" onsubmit="return confirm('Apakah Anda yakin ingin menolak hasil ekstraksi ini?')">
+            <form action="{{ route('admin.narasi.destroy', $narasi->id) }}" method="POST" style="margin-top: 15px;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus narasi ini?')">
                 @csrf
+                @method('DELETE')
                 <button type="submit" class="button btn-danger" style="width: 100%;">
                     ✕ Tolak Ekstraksi (Hapus / Reset)
                 </button>

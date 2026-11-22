@@ -5,31 +5,34 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class Ollama KnowledgeExtractor
+class OllamaKnowledgeExtractor
 {
     public function extract($narasi): array
     {
         $teksNarasi = is_object($narasi) ? ($narasi->isi_narasi ?? '') : (string) $narasi;
 
-       // Prompt dibuat lebih ringkas dan to the point agar gemma:2b tidak kewalahan
-        $prompt = "Ekstrak informasi budaya Bengkulu berikut ke dalam format JSON murni.\n" .
-            "Jangan gunakan tanda kutip ganda di dalam teks deskripsi agar JSON tidak rusak.\n" .
-            "Struktur JSON harus persis seperti ini:\n" .
-            "{\n" .
-            "  \"name\": \"Judul budaya\",\n" .
-            "  \"category\": \"ritual\",\n" .
-            "  \"description\": \"Ringkasan deskripsi lengkap budaya tersebut\",\n" .
-            "  \"location\": \"Bengkulu\"\n" .
-            "}\n\n" .
-            "Teks Narasi:\n\"{$teksNarasi}\"";
+       // Daftar kategori yang diizinkan agar AI tidak asal melabeli "Ritual"
+        $kategoriList = "Ritual, Kuliner, Gotong Royong, Kesenian, Tradisi Lisan, Kerajinan";
 
-        try {
-            $response = Http::timeout(180)
-                ->connectTimeout(15)
-                ->post('http://127.0.0.1:11434/api/generate', [
+        $prompt = "Bertindaklah sebagai sejarawan dan ahli budaya Bengkulu yang sangat teliti. " .
+                  "Analisis narasi budaya berikut dan ekstrak informasinya ke dalam format JSON yang valid (tanpa teks markdown tambahan seperti ```json) dengan atribut berikut:\n" .
+                  "- name: Judul atau nama budaya yang sesuai.\n" .
+                  "- category: Pilih HANYA salah satu dari kategori berikut yang paling tepat: [{$kategoriList}].\n" .
+                  "- description: Deskripsi naratif yang utuh, mendalam, dan kaya makna (minimal 2-3 paragraf penjelas).\n" .
+                  "- practice: Praktik atau tata cara pelaksanaan budaya tersebut secara rinci (jika tidak ada, tuliskan \"Tidak ada praktik khusus\").\n" .
+                  "- cultural_term: Istilah khas bahasa lokal yang digunakan (jika ada).\n" .
+                  "- community: Komunitas atau kelompok masyarakat yang menjalankan.\n" .
+                  "- people: Tokoh atau perannya (misal: pemangku adat, tokoh masyarakat, dll).\n" .
+                  "- location: Lokasi spesifik kejadian atau tradisi.\n" .
+                  "- time: Waktu pelaksanaan (misal: setiap 17 Agustus, bulan Muharram, sepanjang tahun, dll).\n" .
+                  "- meaning: Makna filosofis atau nilai budaya yang terkandung.\n\n" .
+                  "Judul Narasi Sumber: {$judul}\n" .
+                  "Isi Narasi Mentah:\n\"{$isiNarasi}\"\n\n" .
+
+                $response = \Illuminate\Support\Facades\Http::timeout(60)->post('http://localhost:11434/api/generate', [
                     'model' => 'gemma:2b',
                     'prompt' => $prompt,
-                    'stream' => false,
+                    'stream' => false
                 ]);
 
             if ($response->failed()) {

@@ -88,11 +88,25 @@
 </head>
 <body>
     <header>
-        <a href="{{ route('admin.narasi.index') }}">
-            <strong style="letter-spacing: 1px;">JELAJAH <span style="color: var(--teal);">BENGKULU</span></strong>
-            <div style="font-size:11px; margin-top:3px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Admin Panel — Manajemen Akun</div>
-        </a>
-        <a href="{{ route('admin.narasi.index') }}" style="font-size: 14px; font-weight: 600; color: var(--teal);">← Dashboard Narasi</a>
+        <div>
+            <a href="{{ route('admin.narasi.index') }}">
+                <strong style="letter-spacing: 1px;">JELAJAH <span style="color: var(--teal);">BENGKULU.</span></strong>
+                <div style="font-size:11px; margin-top:3px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Admin Panel</div>
+            </a>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+            <a href="{{ route('admin.users.index') }}" style="color: var(--accent-gold); font-weight: 600;">Manajemen Akun</a>
+            <a href="{{ route('admin.testimonis.index') }}" style="color: var(--accent-gold); font-weight: 600;">Kelola Testimoni</a>
+            <a href="{{ route('admin.pengetahuan.manage') }}" style="color: var(--accent-gold); font-weight: 600;">Kelola Publik</a>
+            <a href="{{ route('home') }}" style="font-weight: 600;">Lihat Website ↗</a>
+
+            <form action="{{ route('logout') }}" method="POST" style="display: inline; margin: 0;">
+                @csrf
+                <button type="submit" style="background: rgba(155, 28, 28, 0.2); color: #f87171; border: 1px solid rgba(155, 28, 28, 0.4); padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                    Logout
+                </button>
+            </form>
+        </div>
     </header>
 
     <main>

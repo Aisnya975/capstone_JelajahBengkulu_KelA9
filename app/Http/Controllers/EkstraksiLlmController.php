@@ -84,38 +84,34 @@ class EkstraksiLlmController extends Controller
         $pengetahuan = Pengetahuan::where('narasi_id', $narasi->id)->first();
 
         // 3. Tangkap file gambar baru jika ada yang diunggah
-        $imagePath = $pengetahuan ? $pengetahuan->image : null; // Pertahankan gambar lama jika ada
+        $imagePath = $pengetahuan ? $pengetahuan->image : null; 
         
         if ($request->hasFile('image')) {
-            // Hapus gambar lama di storage jika ada untuk menghemat ruang
             if ($pengetahuan && $pengetahuan->image && Storage::disk('public')->exists($pengetahuan->image)) {
                 Storage::disk('public')->delete($pengetahuan->image);
             }
-            // Simpan gambar baru
             $imagePath = $request->file('image')->store('pengetahuan', 'public');
         }
 
-        // Data yang akan disimpan/diperbarui
+        // Data yang akan disimpan/diperbarui (Pastikan array di-json_encode agar tidak error)
         $payload = [
-            'narasi_id' => $narasi->id,
-            'name' => $namaPengetahuan,
-            'category' => $kategoriVal,
-            'description' => $deskripsiVal,
-            'location' => $lokasiVal,
-            'time' => $waktuVal,
-            'meaning' => $maknaVal,
-            'practice' => is_string($praktikVal) ? json_decode($praktikVal, true) : $praktikVal,
-            'cultural_term' => is_string($istilahVal) ? json_decode($istilahVal, true) : $istilahVal,
-            'community' => is_string($komunitasVal) ? json_decode($komunitasVal, true) : $komunitasVal,
-            'people' => is_string($tokohVal) ? json_decode($tokohVal, true) : $tokohVal,
-            'image' => $imagePath,
+            'narasi_id'     => $narasi->id,
+            'name'          => $namaPengetahuan,
+            'category'      => $kategoriVal,
+            'description'   => is_array($deskripsiVal) ? json_encode($deskripsiVal) : $deskripsiVal,
+            'location'      => $lokasiVal,
+            'time'          => is_array($waktuVal) ? json_encode($waktuVal) : $waktuVal,
+            'meaning'       => is_array($maknaVal) ? json_encode($maknaVal) : $maknaVal,
+            'practice'      => is_array($praktikVal) ? json_encode($praktikVal) : (is_string($praktikVal) ? $praktikVal : json_encode($praktikVal)),
+            'cultural_term' => is_array($istilahVal) ? json_encode($istilahVal) : (is_string($istilahVal) ? $istilahVal : json_encode($istilahVal)),
+            'community'     => is_array($komunitasVal) ? json_encode($komunitasVal) : (is_string($komunitasVal) ? $komunitasVal : json_encode($komunitasVal)),
+            'people'        => is_array($tokohVal) ? json_encode($tokohVal) : (is_string($tokohVal) ? $tokohVal : json_encode($tokohVal)),
+            'image'         => $imagePath,
         ];
 
         if ($pengetahuan) {
-            // Jika sudah ada, cukup update (Memperbarui data tanpa membuat duplikat)
             $pengetahuan->update($payload);
         } else {
-            // Jika belum ada, buat baru
             Pengetahuan::create($payload);
         }
 
@@ -136,22 +132,42 @@ class EkstraksiLlmController extends Controller
 
         $oldData = $ekstraksi->hasil_ekstraksi;
 
+        // Ambil input dan pastikan jika berupa array, diubah ke string atau di-handle dengan aman
         $dataBaru = [
-            'name' => $request->input('name', $oldData['name'] ?? ''),
-            'category' => $request->input('category', $oldData['category'] ?? ''),
-            'description' => $request->input('description', $oldData['description'] ?? ''),
-            'location' => $request->input('location', $oldData['location'] ?? ''),
-            'time' => $request->input('time', $oldData['time'] ?? ''),
-            'meaning' => $request->input('meaning', $oldData['meaning'] ?? ''),
-            'practice' => $request->input('practice', $oldData['practice'] ?? []),
+            'name'          => $request->input('name', $oldData['name'] ?? ''),
+            'category'      => $request->input('category', $oldData['category'] ?? ''),
+            'description'   => $request->input('description', $oldData['description'] ?? ''),
+            'location'      => $request->input('location', $oldData['location'] ?? ''),
+            'time'          => is_array($request->input('time')) ? implode(', ', $request->input('time')) : $request->input('time', $oldData['time'] ?? ''),
+            'meaning'       => is_array($request->input('meaning')) ? implode(', ', $request->input('meaning')) : $request->input('meaning', $oldData['meaning'] ?? ''),
+            'practice'      => $request->input('practice', $oldData['practice'] ?? []),
             'cultural_term' => $request->input('cultural_term', $oldData['cultural_term'] ?? []),
-            'community' => $request->input('community', $oldData['community'] ?? []),
-            'people' => $request->input('people', $oldData['people'] ?? []),
+            'community'     => $request->input('community', $oldData['community'] ?? []),
+            'people'        => $request->input('people', $oldData['people'] ?? []),
         ];
 
+        // Update data pada tabel ekstraksi_llms
         $ekstraksi->update([
             'hasil_ekstraksi' => $dataBaru,
         ]);
+
+        // Sinkronkan juga ke tabel pengetahuans agar data di website ikut terbarui tanpa error
+        \App\Models\Pengetahuan::updateOrCreate(
+            ['narasi_id' => $narasi->id],
+            [
+                'ekstraksi_llm_id' => $ekstraksi->id,
+                'name'          => $dataBaru['name'],
+                'category'      => $dataBaru['category'],
+                'description'   => $dataBaru['description'],
+                'location'      => $dataBaru['location'], // Diperbaiki dari $dataBatu menjadi $dataBaru
+                'time'          => is_array($dataBaru['time']) ? json_encode($dataBaru['time']) : $dataBaru['time'],
+                'meaning'       => is_array($dataBaru['meaning']) ? json_encode($dataBaru['meaning']) : $dataBaru['meaning'],
+                'practice'      => is_array($dataBaru['practice']) ? json_encode($dataBaru['practice']) : $dataBaru['practice'],
+                'cultural_term' => is_array($dataBaru['cultural_term']) ? json_encode($dataBaru['cultural_term']) : $dataBaru['cultural_term'],
+                'community'     => is_array($dataBaru['community']) ? json_encode($dataBaru['community']) : $dataBaru['community'],
+                'people'        => is_array($dataBaru['people']) ? json_encode($dataBaru['people']) : $dataBaru['people'],
+            ]
+        );
 
         return back()->with('success', 'Hasil ekstraksi berhasil direvisi/diperbarui.');
     }

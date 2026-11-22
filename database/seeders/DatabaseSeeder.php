@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Menggunakan updateOrCreate agar aman dari error duplicate entry
+        // 1. Buat atau update user default agar aman dari error duplicate entry
         User::updateOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -24,5 +24,8 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
             ]
         );
+
+        // 2. Panggil seeder pemulihan narasi dan pengetahuan budaya
+        $this->call(RestoreNarasiBudayaSeeder::class);
     }
 }

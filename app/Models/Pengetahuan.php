@@ -36,8 +36,13 @@ class Pengetahuan extends Model
         'tokoh' => 'array',
     ];
 
+    public function ekstraksiLlm()
+    {
+        return $this->belongsTo(EkstraksiLlm::class, 'ekstraksi_llm_id');
+    }
+
     public function narasi()
     {
-        return $this->belongsTo(Narasi::class);
+        return $this->belongsTo(Narasi::class, 'narasi_id');
     }
 }

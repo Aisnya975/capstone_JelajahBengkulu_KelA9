@@ -59,10 +59,13 @@ class PengetahuanController extends Controller
         ));
     }
 
-    public function show(Pengetahuan $pengetahuan)
-    {
-        $pengetahuan->load('narasi');
+    public function show($id)
+{
+    $pengetahuan = Pengetahuan::with(['narasi', 'ekstraksiLlm'])->findOrFail($id);
+    
+    // Definisikan variabel deskripsiVal agar tidak kosong/null
+    $deskripsiVal = $pengetahuan->description ?? $pengetahuan->narasi->isi_narasi ?? true;
 
-        return view('pengetahuan.show', compact('pengetahuan'));
-    }
+    return view('pengetahuan.show', compact('pengetahuan', 'deskripsiVal'));
+}
 }

@@ -322,16 +322,12 @@
             <div class="main-story">
                 
                 <!-- 1. Deskripsi -->
-                <div class="story-box">
-                    <h3>📝 Deskripsi & Narasi</h3>
-                    <div class="story-content">
-                        @if($deskripsiVal)
-                            {{ $deskripsiVal }}
-                        @else
-                            <span style="color: #64748b; font-style: italic;">Belum ada deskripsi mendalam untuk pengetahuan budaya ini.</span>
-                        @endif
-                    </div>
-                </div>
+                <div class="card-body">
+    <h3>📝 Deskripsi & Narasi</h3>
+    <div class="story-content">
+        {{ $pengetahuan->description ?? ($pengetahuan->narasi->isi_narasi ?? ($pengetahuan->ekstraksiLlm->hasil_ekstraksi ?? 'Belum ada deskripsi mendalam.')) }}
+    </div>
+</div>
 
                 <!-- 2. Makna Budaya -->
                 <div class="story-box">
@@ -367,7 +363,7 @@
 
                 <!-- 4. Sumber Pengetahuan -->
                 <div class="story-box">
-                    <h3>📚 Sumber & Asal Usul Arsip</h3>
+                    <h3>Sumber & Asal Usul Arsip</h3>
                     <div class="story-content">
                         @if(isset($pengetahuan->narasi) && $pengetahuan->narasi)
                             <strong>Judul Narasi:</strong> {{ $pengetahuan->narasi->judul_narasi }}<br>
