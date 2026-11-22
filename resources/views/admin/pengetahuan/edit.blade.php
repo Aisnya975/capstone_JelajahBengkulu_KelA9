@@ -15,7 +15,7 @@
             --teal-hover: #1f9e9a;
             --accent-gold: #ffb703;
         }
-        * { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; }
         body {
             margin: 0;
             background: var(--bg-deep);
@@ -26,6 +26,11 @@
             padding: 22px 6%;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         header a { color: var(--text-main); text-decoration: none; transition: color 0.2s; }
         header a:hover { color: var(--teal); }
@@ -39,6 +44,25 @@
         }
         h1 { margin-top: 0; font-size: 28px; letter-spacing: -0.5px; }
         .muted { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+        .alert-error {
+            background: rgba(155, 28, 28, 0.2);
+            border: 1px solid rgba(248, 113, 113, 0.45);
+            color: #fca5a5;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .alert-error ul { margin: 6px 0 0 18px; padding: 0; }
+        .alert-success {
+            background: rgba(24, 123, 120, 0.22);
+            border: 1px solid rgba(31, 158, 154, 0.5);
+            color: #99f6e4;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
         .form-group { margin-bottom: 22px; }
         label {
             display: block;
@@ -129,6 +153,21 @@
             <h1>Edit Pengetahuan Budaya</h1>
             <p class="muted" style="margin-bottom: 25px;">Perbarui data pengetahuan budaya yang sudah tayang tanpa membuat duplikat baru.</p>
 
+            @if(session('success'))
+                <div class="alert-success">{{ session('success') }}</div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert-error">
+                    <strong>Perubahan gagal disimpan:</strong>
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('admin.pengetahuan.update', $pengetahuan->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -155,7 +194,7 @@
 
                 <div class="form-group">
                     <label>Periode / Waktu</label>
-                    <input type="text" name="time_period" value="{{ old('time_period', $pengetahuan->time_period) }}">
+                    <input type="text" name="time_period" value="{{ old('time_period', $pengetahuan->time ?? $pengetahuan->time_period) }}">
                 </div>
 
                 <div class="form-group">

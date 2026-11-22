@@ -38,6 +38,8 @@ class AdminPengetahuanController extends Controller
     }
 
     // Memperbarui data pengetahuan (mencegah duplikasi data)
+    // Memperbarui data pengetahuan (mencegah duplikasi data)
+    // Memperbarui data pengetahuan (mencegah duplikasi data)
     public function update(Request $request, $id)
     {
         $pengetahuan = Pengetahuan::findOrFail($id);
@@ -48,24 +50,30 @@ class AdminPengetahuanController extends Controller
             'description' => 'required|string',
             'location'    => 'nullable|string|max:255',
             'time_period' => 'nullable|string|max:100',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+
+        // Petakan input form ke kolom asli pada tabel pengetahuans
+        $dataToUpdate = [
+            'name'        => $validated['title'],
+            'category'    => $validated['category'],
+            'description' => $validated['description'],
+            'location'    => $validated['location'] ?? null,
+            'time'        => $validated['time_period'] ?? null,
+        ];
 
         // Cek jika ada unggahan gambar baru
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada di storage
             if ($pengetahuan->image && Storage::disk('public')->exists($pengetahuan->image)) {
                 Storage::disk('public')->delete($pengetahuan->image);
             }
-            // Simpan gambar baru
-            $validated['image'] = $request->file('image')->store('pengetahuan', 'public');
+            $dataToUpdate['image'] = $request->file('image')->store('pengetahuan', 'public');
         }
 
-        $pengetahuan->update($validated);
+        $pengetahuan->update($dataToUpdate);
 
         return redirect()->route('admin.pengetahuan.manage')->with('success', 'Data pengetahuan budaya berhasil diperbarui.');
     }
-
     // Menghapus pengetahuan dari publik
     public function destroy(Pengetahuan $pengetahuan)
     {

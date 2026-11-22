@@ -172,6 +172,7 @@ Pastikan ekstensi PHP berikut telah diaktifkan:
 - `curl`
 - `fileinfo`
 - `gd`
+<<<<<<< HEAD
 
 ---
 
@@ -626,4 +627,5 @@ Beberapa hal yang perlu diperhatikan dalam pengelolaan aplikasi:
 - Hindari mengekspos data sensitif melalui tunnel publik.
 - Gunakan HTTPS dan konfigurasi keamanan yang sesuai ketika aplikasi diterapkan pada lingkungan produksi.
 
----
+
+>>>>>>> 9ab904e (Perbaikan alur path dan penambahan file readme)
