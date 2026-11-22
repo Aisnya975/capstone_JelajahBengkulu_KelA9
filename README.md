@@ -100,7 +100,6 @@ Tahapan ekstraksi meliputi:
 | Visual Studio Code | Editor kode program |
 | Git dan GitHub | Pengelolaan versi kode |
 | Postman | Pengujian API |
-| Figma | Perancangan antarmuka pengguna |
 
 ---
 
