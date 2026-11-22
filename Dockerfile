@@ -27,6 +27,10 @@ RUN if [ -f package.json ]; then npm ci && npm run build; fi
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Ubah Apache agar mendengarkan port 7860 (standar Hugging Face Spaces)
+RUN sed -i 's/80/7860/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+EXPOSE 7860
+    
 # Jalankan storage:link dan optimasi cache saat container berjalan
 CMD php artisan storage:link || true && \
     php artisan config:cache && \
