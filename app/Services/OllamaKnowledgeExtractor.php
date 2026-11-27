@@ -9,31 +9,38 @@ class OllamaKnowledgeExtractor
 {
     public function extract($narasi): array
     {
-        $teksNarasi = is_object($narasi) ? ($narasi->isi_narasi ?? '') : (string) $narasi;
+        $judul = is_object($narasi)
+            ? ($narasi->judul ?? $narasi->name ?? 'Narasi Budaya Bengkulu')
+            : 'Narasi Budaya Bengkulu';
 
-       // Daftar kategori yang diizinkan agar AI tidak asal melabeli "Ritual"
-        $kategoriList = "Ritual, Kuliner, Gotong Royong, Kesenian, Tradisi Lisan, Kerajinan";
+        $isiNarasi = is_object($narasi)
+            ? ($narasi->isi_narasi ?? $narasi->narasi ?? '')
+            : (string) $narasi;
 
-        $prompt = "Bertindaklah sebagai sejarawan dan ahli budaya Bengkulu yang sangat teliti. " .
-                  "Analisis narasi budaya berikut dan ekstrak informasinya ke dalam format JSON yang valid (tanpa teks markdown tambahan seperti ```json) dengan atribut berikut:\n" .
-                  "- name: Judul atau nama budaya yang sesuai.\n" .
-                  "- category: Pilih HANYA salah satu dari kategori berikut yang paling tepat: [{$kategoriList}].\n" .
-                  "- description: Deskripsi naratif yang utuh, mendalam, dan kaya makna (minimal 2-3 paragraf penjelas).\n" .
-                  "- practice: Praktik atau tata cara pelaksanaan budaya tersebut secara rinci (jika tidak ada, tuliskan \"Tidak ada praktik khusus\").\n" .
-                  "- cultural_term: Istilah khas bahasa lokal yang digunakan (jika ada).\n" .
-                  "- community: Komunitas atau kelompok masyarakat yang menjalankan.\n" .
-                  "- people: Tokoh atau perannya (misal: pemangku adat, tokoh masyarakat, dll).\n" .
-                  "- location: Lokasi spesifik kejadian atau tradisi.\n" .
-                  "- time: Waktu pelaksanaan (misal: setiap 17 Agustus, bulan Muharram, sepanjang tahun, dll).\n" .
-                  "- meaning: Makna filosofis atau nilai budaya yang terkandung.\n\n" .
-                  "Judul Narasi Sumber: {$judul}\n" .
-                  "Isi Narasi Mentah:\n\"{$isiNarasi}\"\n\n" .
+        // Daftar kategori yang diizinkan agar AI tidak asal melabeli "Ritual"
+        $kategoriList = 'Ritual, Kuliner, Gotong Royong, Kesenian, Tradisi Lisan, Kerajinan';
 
-                $response = \Illuminate\Support\Facades\Http::timeout(60)->post('http://localhost:11434/api/generate', [
-                    'model' => 'gemma:2b',
-                    'prompt' => $prompt,
-                    'stream' => false
-                ]);
+        $prompt = "Bertindaklah sebagai sejarawan dan ahli budaya Bengkulu yang sangat teliti. "
+            . "Analisis narasi budaya berikut dan ekstrak informasinya ke dalam format JSON yang valid (tanpa teks markdown tambahan seperti ```json) dengan atribut berikut:\n"
+            . "- name: Judul atau nama budaya yang sesuai.\n"
+            . "- category: Pilih HANYA salah satu dari kategori berikut yang paling tepat: [{$kategoriList}].\n"
+            . "- description: Deskripsi naratif yang utuh, mendalam, dan kaya makna (minimal 2-3 paragraf penjelas).\n"
+            . "- practice: Praktik atau tata cara pelaksanaan budaya tersebut secara rinci (jika tidak ada, tuliskan \"Tidak ada praktik khusus\").\n"
+            . "- cultural_term: Istilah khas bahasa lokal yang digunakan (jika ada).\n"
+            . "- community: Komunitas atau kelompok masyarakat yang menjalankan.\n"
+            . "- people: Tokoh atau perannya (misal: pemangku adat, tokoh masyarakat, dll).\n"
+            . "- location: Lokasi spesifik kejadian atau tradisi.\n"
+            . "- time: Waktu pelaksanaan (misal: setiap 17 Agustus, bulan Muharram, sepanjang tahun, dll).\n"
+            . "- meaning: Makna filosofis atau nilai budaya yang terkandung.\n\n"
+            . "Judul Narasi Sumber: {$judul}\n"
+            . "Isi Narasi Mentah:\n\"{$isiNarasi}\"\n\n";
+
+        try {
+            $response = Http::timeout(120)->post('http://localhost:11434/api/generate', [
+                'model' => 'gemma:2b',
+                'prompt' => $prompt,
+                'stream' => false,
+            ]);
 
             if ($response->failed()) {
                 throw new RuntimeException('Ollama lokal gagal merespons.');
@@ -61,7 +68,6 @@ class OllamaKnowledgeExtractor
             // Jika gagal karena karakter kontrol/kutip tidak valid, lakukan pembersihan lanjutan
             if (!is_array($hasil)) {
                 $textOutput = preg_replace('/[\x00-\x1F\x7F-\x9F]/u', '', $textOutput);
-                // Perbaiki kutip internal yang berpotensi merusak JSON
                 $hasil = json_decode($textOutput, true);
             }
 
@@ -70,8 +76,8 @@ class OllamaKnowledgeExtractor
             }
 
             return $hasil;
-        } catch (\Exception $e) {
-            throw new RuntimeException('Gagal mengekstrak via Ollama: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            throw new RuntimeException('Gagal mengekstrak via Ollama: ' . $e->getMessage(), 0, $e);
         }
     }
 }
